@@ -1,0 +1,40 @@
+version: '3'
+services:
+  ##################################################
+  oxid_app:
+    container_name: oxid_app
+    build:
+      context: ./build/
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/var/www/html
+      - ./mount/oxid-eshop-module/src:/var/www/html/source/modules/ff/ffwebcomponents
+      - ./mount/oxid-eshop-module:/var/www/html/vendor/omikron/oxid-factfinder
+    depends_on:
+      - oxid_mysql
+      - oxid_adminer
+    ports:
+      - 80:80
+
+  oxid_mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+    container_name: mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - oxid_mysql_volume:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=mysql
+
+  oxid_adminer:
+    container_name: adminer
+    image: adminer:latest
+    depends_on:
+      - oxid_mysql
+    ports:
+    - 8080:8080
+##################################################
+volumes:
+  oxid_mysql_volume:
